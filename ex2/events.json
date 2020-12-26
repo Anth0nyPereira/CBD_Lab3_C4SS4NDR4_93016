@@ -1,0 +1,12 @@
+{"user_email": "user10@ua.pt", "video_id": 7, "real_timestamp": "2020-12-26 12:53:53.096Z", "video_timestamp": 8, "action": "pause"}
+     {"user_email": "user1@ua.pt", "video_id": 2, "real_timestamp": "2020-12-26 12:53:53.096Z", "video_timestamp": 3, "action": "stop"}
+    {"user_email": "user11@ua.pt", "video_id": 2, "real_timestamp": "2020-12-26 12:53:53.096Z", "video_timestamp": 2, "action": "stop"}
+  {"user_email": "user12@ua.pt", "video_id": 10, "real_timestamp": "2020-12-26 12:53:53.096Z", "video_timestamp": 8, "action": "pause"}
+     {"user_email": "user1@ua.pt", "video_id": 1, "real_timestamp": "2020-12-26 12:53:53.096Z", "video_timestamp": 0, "action": "play"}
+   {"user_email": "user2@ua.pt", "video_id": 1, "real_timestamp": "2020-12-26 12:53:53.096Z", "video_timestamp": 55, "action": "pause"}
+    {"user_email": "user2@ua.pt", "video_id": 3, "real_timestamp": "2020-12-26 12:53:53.096Z", "video_timestamp": 74, "action": "stop"}
+  {"user_email": "user12@ua.pt", "video_id": 12, "real_timestamp": "2020-12-26 12:53:53.096Z", "video_timestamp": 12, "action": "play"}
+ {"user_email": "user12@ua.pt", "video_id": 12, "real_timestamp": "2020-12-26 12:53:53.096Z", "video_timestamp": 104, "action": "stop"}
+    {"user_email": "user4@ua.pt", "video_id": 7, "real_timestamp": "2020-12-26 12:53:53.096Z", "video_timestamp": 14, "action": "play"}
+    {"user_email": "user4@ua.pt", "video_id": 3, "real_timestamp": "2020-12-26 12:53:53.096Z", "video_timestamp": 20, "action": "stop"}
+    {"user_email": "user4@ua.pt", "video_id": 6, "real_timestamp": "2020-12-26 12:53:53.096Z", "video_timestamp": 86, "action": "play"} 

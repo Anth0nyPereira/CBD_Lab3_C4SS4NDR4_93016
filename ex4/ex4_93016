@@ -1,0 +1,237 @@
+Exercise 4 - Temática Livre
+
+cqlsh> CREATE KEYSPACE eurovision WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 3};
+
+SINGER
+cqlsh:eurovision> CREATE TABLE singer(singer_id int, name text, country text, year int, song text, PRIMARY KEY(singer_id));
+
+WINNER 
+cqlsh:eurovision> CREATE TABLE winner(country text, year int, song text, PRIMARY KEY(country, year, song));
+
+USER
+cqlsh:eurovision> CREATE TABLE user(email text, username text, name text, PRIMARY KEY(email));
+
+COMMENT
+cqlsh:eurovision> CREATE TABLE comment(user_email text, user_username text, singer_id int, comment text, upload_timestamp timestamp, PRIMARY KEY (user_email, upload_timestamp));
+
+Inserts:
+
+SINGER
+cqlsh:eurovision> BEGIN BATCH
+              ... INSERT INTO singer(singer_id, name, country, year, song) VALUES (1, 'Duncan Laurence', 'The Netherlands', 2019, 'Arcade');
+              ... INSERT INTO singer(singer_id, name, country, year, song) VALUES (2, 'Conan Osiris', 'Portugal', 2019, 'Telemoveis');
+              ... INSERT INTO singer(singer_id, name, country, year, song) VALUES (3, 'Alexander Rybak', 'Norway', 2009, 'Fairytale');
+              ... INSERT INTO singer(singer_id, name, country, year, song) VALUES (4, 'Benny Cristo', 'Czech Republic', 2020, 'Kemama');
+              ... INSERT INTO singer(singer_id, name, country, year, song) VALUES (5, 'Eden Alene', 'Israel', 2020, 'Feker libi');
+              ... INSERT INTO singer(singer_id, name, country, year, song) VALUES (6, 'Elisa', 'Portugal', 2020, 'Medo de Sentir');
+              ... INSERT INTO singer(singer_id, name, country, year, song) VALUES (7, 'Little Big', 'Russia', 2020, 'UNO');
+              ... INSERT INTO singer(singer_id, name, country, year, song) VALUES (8, 'Gjons Tears', 'Switzerland', 2020, 'Repondez-moi');
+              ... INSERT INTO singer(singer_id, name, country, year, song) VALUES (9, 'Elnur Huseynov', 'Azerbaijan', 2015, 'Hour of the wolf');
+              ... INSERT INTO singer(singer_id, name, country, year, song) VALUES (10, 'Marta Jandova & Vaclav Noid Barta', 'Czech Republic', 2015, 'Hope Never Dies');
+              ... INSERT INTO singer(singer_id, name, country, year, song) VALUES (11, 'Daniel Kajmakoski', 'Macedonia', 2015, 'Autumn leaves');
+              ... INSERT INTO singer(singer_id, name, country, year, song) VALUES (12, 'Emmelie de Forest', 'Denmark', 2013, 'Only Teardrops');
+              ... INSERT INTO singer(singer_id, name, country, year, song) VALUES (13, 'Loreen', 'Sweden', 2012, 'Euphoria');
+              ... APPLY BATCH;
+                
+WINNER
+cqlsh:eurovision> BEGIN BATCH
+              ... INSERT INTO winner(country, year, song) VALUES ('Sweden', 2012, 'Euphoria');
+              ... INSERT INTO winner(country, year, song) VALUES ('The Netherlands', 2019, 'Arcade');
+              ... INSERT INTO winner(country, year, song) VALUES ('Denmark', 2013, 'Only Teardrops');
+              ... INSERT INTO winner(country, year, song) VALUES ('Norway', 2009, 'Fairytale');
+              ... APPLY BATCH ;
+              
+USER
+cqlsh:eurovision> BEGIN BATCH
+       ... INSERT INTO user(email, name, username) VALUES ('user1@ua.pt', 'RealName1', 'user1');
+       ... INSERT INTO user(email, name, username) VALUES ('user2@ua.pt', 'RealName2', 'user2');
+       ... INSERT INTO user(email, name, username) VALUES ('user3@ua.pt', 'RealName3', 'user3');
+       ... INSERT INTO user(email, name, username) VALUES ('user4@ua.pt', 'RealName4', 'user4');
+       ... INSERT INTO user(email, name, username) VALUES ('user5@ua.pt', 'RealName5', 'user5');
+       ... INSERT INTO user(email, name, username) VALUES ('user6@ua.pt', 'RealName6', 'user6');
+       ... INSERT INTO user(email, name, username) VALUES ('user7@ua.pt', 'RealName7', 'user7');
+       ... INSERT INTO user(email, name, username) VALUES ('user8@ua.pt', 'RealName8', 'user8');
+       ... INSERT INTO user(email, name, username) VALUES ('user9@ua.pt', 'RealName9', 'user9');
+       ... INSERT INTO user(email, name, username) VALUES ('user10@ua.pt', 'RealName10', 'user10');
+       ... INSERT INTO user(email, name, username) VALUES ('user11@ua.pt', 'RealName11', 'user11');
+       ... INSERT INTO user(email, name, username) VALUES ('user12@ua.pt', 'RealName12', 'user12');
+       ... APPLY BATCH;
+
+COMMENT
+cqlsh:eurovision> BEGIN BATCH
+              ... INSERT INTO comment(user_email, user_username, singer_id, comment, upload_timestamp) VALUES ('user1@ua.pt', 'user1', 1, 'Amazing performance!! Love that you won, so proud', dateof(now()));
+              ... INSERT INTO comment(user_email, user_username, singer_id, comment, upload_timestamp) VALUES ('user1@ua.pt', 'user1', 2, 'wow', dateof(now()));                                                  
+              ... INSERT INTO comment(user_email, user_username, singer_id, comment, upload_timestamp) VALUES ('user2@ua.pt', 'user2', 5, 'Bullshit', dateof(now()));                                                        
+              ... INSERT INTO comment(user_email, user_username, singer_id, comment, upload_timestamp) VALUES ('user4@ua.pt', 'user4', 7, 'Amazing', dateof(now()));                                             
+              ... INSERT INTO comment(user_email, user_username, singer_id, comment, upload_timestamp) VALUES ('user3@ua.pt', 'user3', 9, 'Jesus Christ that was awesoooooomeeeee aweeeeesomeeee', dateof(now()));                            
+              ... INSERT INTO comment(user_email, user_username, singer_id, comment, upload_timestamp) VALUES ('user1@ua.pt', 'user1', 9, 'meh', dateof(now()));                                                  
+              ... INSERT INTO comment(user_email, user_username, singer_id, comment, upload_timestamp) VALUES ('user3@ua.pt', 'user3', 1, 'Much love', dateof(now()));                                                   
+              ... INSERT INTO comment(user_email, user_username, singer_id, comment, upload_timestamp) VALUES ('user11@ua.pt', 'user11', 11, 'what does the fox say', dateof(now()));                                                     
+              ... INSERT INTO comment(user_email, user_username, singer_id, comment, upload_timestamp) VALUES ('user1@ua.pt', 'user1', 4, 'CALIENTEEEEEE', dateof(now()));                                                  
+              ... INSERT INTO comment(user_email, user_username, singer_id, comment, upload_timestamp) VALUES ('user12@ua.pt', 'user12', 4, 'Bruh, that was amazing 12 points from Antartida', dateof(now()));                                
+              ... INSERT INTO comment(user_email, user_username, singer_id, comment, upload_timestamp) VALUES ('user5@ua.pt', 'user5', 7, 'Bruh, just stop', dateof(now()));                                                    
+              ... INSERT INTO comment(user_email, user_username, singer_id, comment, upload_timestamp) VALUES ('user5@ua.pt', 'user5', 1, 'Amazing performance', dateof(now()));                                
+              ... APPLY BATCH;
+              
+
+
+cqlsh:eurovision> CREATE INDEX isong ON singer(song);
+cqlsh:eurovision> CREATE INDEX iname ON comment(user_username);
+
+cqlsh:eurovision>  UPDATE user SET name='newName1' WHERE email='user1@ua.pt' ;
+cqlsh:eurovision>  UPDATE user SET name='newName2' WHERE email='user2@ua.pt' ;
+cqlsh:eurovision>  DELETE FROM singer WHERE singer_id=13;
+cqlsh:eurovision> INSERT INTO singer(singer_id, name, country, year, song) VALUES (13, 'Loreen', 'Sweden', 2012, 'Euphoria');
+cqlsh:eurovision> ALTER TABLE singer ADD number int;
+cqlsh:eurovision> ALTER TABLE singer DROP number;
+
+cqlsh:eurovision> select* from singer;
+
+ singer_id | country         | name                              | song             | year
+-----------+-----------------+-----------------------------------+------------------+------
+         5 |          Israel |                        Eden Alene |       Feker libi | 2020
+        10 |  Czech Republic | Marta Jandova & Vaclav Noid Barta |  Hope Never Dies | 2015
+        13 |          Sweden |                            Loreen |         Euphoria | 2012
+        11 |       Macedonia |                 Daniel Kajmakoski |    Autumn leaves | 2015
+         1 | The Netherlands |                   Duncan Laurence |           Arcade | 2019
+         8 |     Switzerland |                       Gjons Tears |     Repondez-moi | 2020
+         2 |        Portugal |                      Conan Osiris |       Telemoveis | 2019
+         4 |  Czech Republic |                      Benny Cristo |           Kemama | 2020
+         7 |          Russia |                        Little Big |              UNO | 2020
+         6 |        Portugal |                             Elisa |   Medo de Sentir | 2020
+         9 |      Azerbaijan |                    Elnur Huseynov | Hour of the wolf | 2015
+        12 |         Denmark |                 Emmelie de Forest |   Only Teardrops | 2013
+         3 |          Norway |                   Alexander Rybak |        Fairytale | 2009
+
+(13 rows)
+cqlsh:eurovision> 
+
+cqlsh:eurovision> select* from singer where year=2020 ALLOW FILTERING;
+
+ singer_id | country        | name         | song           | year
+-----------+----------------+--------------+----------------+------
+         5 |         Israel |   Eden Alene |     Feker libi | 2020
+         8 |    Switzerland |  Gjons Tears |   Repondez-moi | 2020
+         4 | Czech Republic | Benny Cristo |         Kemama | 2020
+         7 |         Russia |   Little Big |            UNO | 2020
+         6 |       Portugal |        Elisa | Medo de Sentir | 2020
+
+(5 rows)
+
+cqlsh:eurovision>  SELECT * FROM singer WHERE year=2020 LIMIT 3 ALLOW FILTERING;
+
+ singer_id | country        | name         | song         | year
+-----------+----------------+--------------+--------------+------
+         5 |         Israel |   Eden Alene |   Feker libi | 2020
+         8 |    Switzerland |  Gjons Tears | Repondez-moi | 2020
+         4 | Czech Republic | Benny Cristo |       Kemama | 2020
+
+(3 rows)
+
+
+cqlsh:eurovision> SELECT * FROM comment  WHERE user_email = 'user1@ua.pt' AND upload_timestamp < dateof(now()) ;
+
+ user_email  | upload_timestamp                | comment                                           | singer_id | user_username
+-------------+---------------------------------+---------------------------------------------------+-----------+---------------
+ user1@ua.pt | 2020-12-26 22:11:46.147000+0000 | Amazing performance!! Love that you won, so proud |         1 |         user1
+ user1@ua.pt | 2020-12-26 22:11:46.148000+0000 |                                               wow |         9 |         user1
+ user1@ua.pt | 2020-12-26 22:14:51.054000+0000 |                                               meh |         9 |         user1
+ user1@ua.pt | 2020-12-26 22:15:17.262000+0000 |                                     CALIENTEEEEEE |         4 |         user1
+
+(4 rows)
+
+cqlsh:eurovision> SELECT * FROM comment WHERE singer_id = 9 ALLOW FILTERING;
+
+ user_email  | upload_timestamp                | comment                                               | singer_id | user_username
+-------------+---------------------------------+-------------------------------------------------------+-----------+---------------
+ user1@ua.pt | 2020-12-26 22:11:46.148000+0000 |                                                   wow |         9 |         user1
+ user1@ua.pt | 2020-12-26 22:14:51.054000+0000 |                                                   meh |         9 |         user1
+ user3@ua.pt | 2020-12-26 22:11:46.148000+0000 |                                             Much love |         9 |         user3
+ user3@ua.pt | 2020-12-26 22:14:24.658000+0000 | Jesus Christ that was awesoooooomeeeee aweeeeesomeeee |         9 |         user3
+
+(4 rows)
+
+cqlsh:eurovision>  SELECT * FROM singer WHERE singer_id in (9,10,11);
+
+ singer_id | country        | name                              | song             | year
+-----------+----------------+-----------------------------------+------------------+------
+         9 |     Azerbaijan |                    Elnur Huseynov | Hour of the wolf | 2015
+        10 | Czech Republic | Marta Jandova & Vaclav Noid Barta |  Hope Never Dies | 2015
+        11 |      Macedonia |                 Daniel Kajmakoski |    Autumn leaves | 2015
+
+(3 rows)
+
+
+cqlsh:eurovision> SELECT* FROM comment ;
+
+ user_email   | upload_timestamp                | comment                                               | singer_id | user_username
+--------------+---------------------------------+-------------------------------------------------------+-----------+---------------
+  user1@ua.pt | 2020-12-26 22:11:46.147000+0000 |     Amazing performance!! Love that you won, so proud |         1 |         user1
+  user1@ua.pt | 2020-12-26 22:11:46.148000+0000 |                                                   wow |         9 |         user1
+  user1@ua.pt | 2020-12-26 22:14:51.054000+0000 |                                                   meh |         9 |         user1
+  user1@ua.pt | 2020-12-26 22:15:17.262000+0000 |                                         CALIENTEEEEEE |         4 |         user1
+ user12@ua.pt | 2020-12-26 22:11:46.148000+0000 |       Bruh, that was amazing 12 points from Antartida |         4 |        user12
+  user4@ua.pt | 2020-12-26 22:11:46.148000+0000 |                                               Amazing |         7 |         user4
+  user3@ua.pt | 2020-12-26 22:11:46.148000+0000 |                                             Much love |         9 |         user3
+  user3@ua.pt | 2020-12-26 22:14:24.658000+0000 | Jesus Christ that was awesoooooomeeeee aweeeeesomeeee |         9 |         user3
+  user2@ua.pt | 2020-12-26 22:11:46.148000+0000 |                                              Bullshit |         5 |         user2
+ user11@ua.pt | 2020-12-26 22:11:46.148000+0000 |                                 what does the fox say |        11 |        user11
+ user11@ua.pt | 2020-12-26 22:15:06.635000+0000 |                                 what does the fox say |        11 |        user11
+  user5@ua.pt | 2020-12-26 22:11:46.148000+0000 |                                       Bruh, just stop |         7 |         user5
+  user5@ua.pt | 2020-12-26 22:14:11.153000+0000 |                                   Amazing performance |         1 |         user5
+  user5@ua.pt | 2020-12-26 22:15:38.980000+0000 |                                   Amazing performance |         1 |         user5
+
+(14 rows)
+
+
+cqlsh:eurovision> SELECT* FROM user ;
+
+ email        | name       | username
+--------------+------------+----------
+  user1@ua.pt |   newName1 |    user1
+ user12@ua.pt | RealName12 |   user12
+  user4@ua.pt |  RealName4 |    user4
+  user6@ua.pt |  RealName6 |    user6
+  user3@ua.pt |  RealName3 |    user3
+  user2@ua.pt |   newName2 |    user2
+ user11@ua.pt | RealName11 |   user11
+  user5@ua.pt |  RealName5 |    user5
+  user7@ua.pt |  RealName7 |    user7
+  user9@ua.pt |  RealName9 |    user9
+  user8@ua.pt |  RealName8 |    user8
+ user10@ua.pt | RealName10 |   user10
+
+(12 rows)
+
+cqlsh:eurovision> SELECT* FROM winner  ;
+
+ country         | year | song
+-----------------+------+----------------
+         Denmark | 2013 | Only Teardrops
+          Sweden | 2012 |       Euphoria
+          Norway | 2009 |      Fairytale
+ The Netherlands | 2019 |         Arcade
+
+(4 rows)
+
+
+cqlsh:eurovision> SELECT* FROM winner WHERE year=2019 ALLOW FILTERING;
+
+ country         | year | song
+-----------------+------+--------
+ The Netherlands | 2019 | Arcade
+
+(1 rows)
+
+
+cqlsh:tutorialspoint> CREATE TABLE contact1(name text PRIMARY KEY, contacts list<varint>);
+cqlsh:tutorialspoint> CREATE TABLE contact2(name text PRIMARY KEY, contacts set<varint>);
+cqlsh:tutorialspoint> CREATE TABLE contact3(name text PRIMARY KEY, map<varint, varint>;
+
+
+              
+            
+
+
+
+

@@ -1,0 +1,175 @@
+3.1
+INSTALAÇÃO CASSANDRA: https://phoenixnap.com/kb/install-cassandra-on-ubuntu?fbclid=IwAR3JSDigDPJRXHElhrLZFsdz_D_zsEGduW_f5e-YRpM45OQJULkHWKakBCQ
+
+The hierarchy of elements in Cassandra is:
+
+    Cluster
+        Data center(s)
+            Rack(s)
+                Server(s)
+                    Node (more accurately, a vnode)
+
+                    HUMMMMM, INTERESTING -> https://stackoverflow.com/questions/28196440/what-are-the-differences-between-a-node-a-cluster-and-a-datacenter-in-a-cassand
+
+cqlsh> CREATE KEYSPACE tutorial WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 3};
+-> criação de um KEYSPACE
+-> replication factor é o nr de nodes no cluster que vão receber uma cópia da informação (lembra-te que, de acordo com o que percebeste, a informação é guardada de forma redundante num "anel", é recuperada a informação
+do nó que tiver sido atualizado mais "recentemente")
+-> um replication factor de 1 significa que apenas há uma cópia de cada row no cluster, e de 2 significa que existe 2 cópias por cada row, em que cada cópia está num nó diferente
+-> replica placement strategy é a estratégia utilizada para criar réplicas de informação e colocá-las ao longo do "anel"; neste caso, SimpleStrategy é rack-aware -> pelo que percebi é como se todo o mundo soubesse a "topologia" do cluster e toda a sua organização em "gavetas"
+
+cqlsh> DESCRIBE keyspaces;
+- mostra os keyspaces existentes, o meu está nesta linha:
+system_auth  system_schema       system_views   tutorial
+
+-> o que é durable writes?
+- é uma opção para a criação do keyspace que por default está a true -> isto faz com que cada vez que haja um write request, a informação seja primeiro guardada numa estrutura em disco chamada "commitlog" e depois numa estrutura em memória chamada "memtable" -> se o node der restart, perde a informação dos memtables (estrutura em memória, REMEMBER), mas se a informação também estiver contida no commitlog ele consegue "reconstruir" a informação -> no fundo, serve para tornar a base de dados persistente
+
+cqlsh> CREATE KEYSPACE test
+... WITH REPLICATION = { 'class' : 'NetworkTopologyStrategy', 'datacenter1' : 3 }
+... AND DURABLE_WRITES = false;
+-> criação de um keyspace 
+-> uma propriedade nova no REPLICATION: datacenter1 -> diz o nr de réplicas que quer do datacenter1 que é o nome do datacenter default do Cassandra
+> durable_writes -> explicação mais acima
+
+cqlsh> SELECT * FROM system_schema.keyspaces;
+-> também mostra todos os keyspaces existentes... acho que prefiro esta tbh
+
+cqlsh> USE tutorialspoint;
+-> comando para usar um keyspace específico já criado anteriormente
+
+cqlsh:test> ALTER KEYSPACE test  WITH replication = {'class':'NetworkTopologyStrategy', 'replication_factor' : 3};
+-> alterar o keyspace (nomeadamente as opções do replication)
+-> também dá para alterar o durable_writes - cqlsh:test> ALTER KEYSPACE test WITH  DURABLE_WRITES = true; (não precisas de meter obrigatoriamente o REPLICATION, ou seja, são dois parâmetros independentes)
+
+-> interessante, CASSANDRA não é case-sensitive, nem no nome dos keyspaces
+
+cqlsh> DROP KEYSPACE tutorial;
+-> eliminar um keyspace, se depois fizeres o comando DESCRIBE keyspaces já não vai aparecer o "tutorial"
+
+
+cqlsh> USE tutorialspoint;
+cqlsh:tutorialspoint>; CREATE TABLE emp( -> criação de uma tabela, é obrigatório definir pelo menos uma chave-primária, tutorialspoint é um KEYSPACE
+   emp_id int PRIMARY KEY,
+   emp_name text,
+   emp_city text,
+   emp_sal varint,
+   emp_phone varint
+   );
+
+cqlsh:tutorialspoint> select * from emp; -> retorna o schema resultante da tabela criada anteriormente
+
+ALTER TABLE -> alterar algo/alguma parte da tabela
+
+cqlsh:tutorialspoint> ALTER TABLE emp
+   ... ADD emp_email text; -> acrescentar uma coluna à tabela, i.e., um novo atributo
+   
+Ao fazeres o select da tabela -> cqlsh:tutorialspoint> select * from emp; -> agora vai aparecer um atributo a mais
+
+cqlsh:tutorialspoint> ALTER TABLE emp DROP emp_email; -> elimina um atributo/coluna da tabela emp_city
+
+cqlsh:tutorialspoint> DROP TABLE emp; -> elimina a tabela emp
+Se executares o comando DESCRIBE COLUMNFAMILIES, emp deixará de existir no seu output
+
+cqlsh:tp> TRUNCATE student; -> remove todos os dados que a tabela student possa conter; ação irreversível
+
+cqlsh:tutorialspoint> CREATE INDEX name ON emp1 (emp_name); -> exemplo de criação de um index para uma dada coluna (emp_name) para a tabela emp1
+
+cqlsh:tp> drop index name; -> eliminar o index criado anteriormente
+
+UTILIZAÇÃO DE BATCH - já se tinha falado disto em Bases de Dados mas, e para relembrar um bocadinho, tudo o que estiver dentro de uma batch é executado e permite colocar várias expressões/declarações que envolvam a alteração de uma tabela, como
+algum INSERT, UPDATE ou DELETE
+
+cqlsh:tutorialspoint> BEGIN BATCH
+... INSERT INTO emp (emp_id, emp_city, emp_name, emp_phone, emp_sal) values(  4,'Pune','rajeev',9848022331, 30000);
+... UPDATE emp SET emp_sal = 50000 WHERE emp_id =3;
+... DELETE emp_city FROM emp WHERE emp_id = 2;
+... APPLY BATCH; -> exemplo de aplicação de uma batch que insere uma nova linha, altera um atributo e elimina outro
+
+O que acontece se eliminarmos um atributo de uma linha?? Este passa a null, verificar em cqlsh:tutorialspoint> select * from emp;
+
+INSERT, UPDATE, READ & DELETE DATA
+
+cqlsh:tutorialspoint> INSERT INTO emp (emp_id, emp_name, emp_city,
+   emp_phone, emp_sal) VALUES(1,'ram', 'Hyderabad', 9848022338, 50000);
+
+cqlsh:tutorialspoint> INSERT INTO emp (emp_id, emp_name, emp_city,
+   emp_phone, emp_sal) VALUES(2,'robin', 'Hyderabad', 9848022339, 40000);
+
+cqlsh:tutorialspoint> INSERT INTO emp (emp_id, emp_name, emp_city,
+   emp_phone, emp_sal) VALUES(3,'rahman', 'Chennai', 9848022330, 45000);
+
+-> preenche a tabela com 3 colunas com os dados apresentados
+
+cqlsh:tutorialspoint> UPDATE emp SET emp_city='Delhi',emp_sal=50000
+   WHERE emp_id=2;
+   
+-> dá update a uma coluna em específico (especificada pela condição WHERE e o seu id)
+
+
+cqlsh:tutorialspoint> SELECT emp_name, emp_sal from emp; -> apresenta os dados relativos a 2 atributos da tabela emp
+
+cqlsh:tutorialspoint> DELETE emp_sal FROM emp WHERE emp_id=3; -> apaga o atributo especificado numa dada linha
+
+cqlsh:tutorialspoint> DELETE FROM emp WHERE emp_id=3; -> apaga uma linha inteira
+
+varint é para inteiros, tal como int, mas varint é mais preciso
+
+Em Cassandra existem listas (list), mapas (map) e sets (set)
+
+Exemplo de criação de uma tabela em que uma das colunas é uma lista: cqlsh:tutorialspoint> CREATE TABLE data(name text PRIMARY KEY, email list<text>);
+
+Inserção: cqlsh:tutorialspoint> INSERT INTO data(name, email) VALUES ('ramu',
+                ['abc@gmail.com','cba@yahoo.com'])
+
+Update/Inserção de um novo elemento: cqlsh:tutorialspoint> UPDATE data
+... SET email = email +['xyz@tutorialspoint.com']
+... where name = 'ramu';
+
+
+Exemplo de criação de uma tabela em que uma das colunas é um set: cqlsh:tutorialspoint> CREATE TABLE data2 (name text PRIMARY KEY, phone set<varint>);
+
+Inserção: cqlsh:tutorialspoint> INSERT INTO data2(name, phone)VALUES ('rahman',    {9848022338,9848022339});
+
+Update/Inserção de um novo elemento: cqlsh:tutorialspoint> UPDATE data2
+   ... SET phone = phone + {9848022330}
+   ... where name = 'rahman';
+   
+
+Exemplo de criação de uma tabela em que uma das colunas é um mapa: cqlsh:tutorialspoint> CREATE TABLE data3 (name text PRIMARY KEY, address map<timestamp, text>);
+
+Inserção: cqlsh:tutorialspoint> INSERT INTO data3 (name, address) VALUES ('robin', {'home' : 'hyderabad' , 'office' : 'Delhi' } );
+
+Update: cqlsh:tutorialspoint> UPDATE data3
+   ... SET address = address+{'office':'mumbai'}
+   ... WHERE name = 'robin';
+   
+ 
+ DATA TYPES
+ 
+cqlsh:tutorialspoint> CREATE TYPE card_details ( -> exemplo de criação de um user-defined data type
+   ... num int,
+   ... pin int,
+   ... name text,
+   ... cvv int,
+   ... phone set<int>
+... );
+   
+cqlsh:tutorialspoint> ALTER TYPE card_details ADD email text; -> adicionar um atributo
+
+cqlsh:tutorialspoint> ALTER TYPE card_details RENAME email TO mail; -> renomear um atributo
+
+cqlsh:tutorialspoint> drop type card; -> apagar o data type, se fizeres cqlsh:tutorialspoint> describe types vai deixar de aparecer
+
+
+BIBLIOGRAFIA
+
+https://docs.datastax.com/en/cql-oss/3.1/cql/cql_reference/create_keyspace_r.html
+https://www.quora.com/What-is-the-meaning-of-Rack-Awareness-in-Hadoop
+https://www.oreilly.com/library/view/learning-apache-cassandra/9781787127296/1b85246c-2713-44ae-a9c2-7971f4915555.xhtml
+https://www.tutorialspoint.com/cassandra/cassandra_create_keyspace.htm
+https://docs.datastax.com/en/cassandra-oss/3.x/cassandra/architecture/archDataDistributeReplication.html
+https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/cqlTruncate.html
+
+
+
