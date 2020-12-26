@@ -1,0 +1,221 @@
+Criar keyspace:
+cqlsh> CREATE KEYSPACE ex2 WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 3};
+
+Usar keyspace criado:
+cqlsh> use ex2 ;
+
+Criar tabelas:
+USER
+cqlsh:ex2> CREATE TABLE user(email text, username text, name text, reg_timestamp timestamp, PRIMARY KEY(email));
+
+VIDEO
+cqlsh:ex2> CREATE TABLE video(id int, author text, title text, upload_timestamp timestamp, description text, tags list<text>, PRIMARY KEY(id, upload_timestamp));
+
+VIDEOS_AUTHOR
+cqlsh:ex2> CREATE TABLE videos_author(user_email text, author text, video_id int, upload_timestamp timestamp, PRIMARY KEY(user_email, upload_timestamp, video_id));
+
+
+COMMENTS_VIDEO
+cqlsh:ex2> CREATE TABLE comments_video(video_id int, user_email text, user_username text, comment text, upload_timestamp timestamp, PRIMARY KEY(video_id, upload_timestamp)) WITH CLUSTERING ORDER BY (upload_timestamp DESC);
+
+
+COMMENTS_USERNAME
+cqlsh:ex2> CREATE TABLE comments_username(user_email text, user_username text, video_id int, comment text, upload_timestamp timestamp, PRIMARY KEY (user_username, upload_timestamp)) WITH CLUSTERING ORDER BY (upload_timestamp DESC);
+
+FOLLOWER
+cqlsh:ex2> CREATE TABLE follower(video_id int, user_email text, PRIMARY KEY(video_id, user_email));
+
+EVENTS
+cqlsh:ex2> CREATE TABLE events(user_email text, video_id int, action text, real_timestamp timestamp, video_timestamp int, PRIMARY KEY((user_email, video_id), real_timestamp, video_timestamp));
+
+RATING
+cqlsh:ex2> CREATE TABLE rating(review_id int, video_id int, value int, PRIMARY KEY(video_id, value,review_id));
+
+Popular tabelas:
+
+USER
+cqlsh:ex2> BEGIN BATCH
+       ... INSERT INTO user(email, name, reg_timestamp, username) VALUES ('user1@ua.pt', 'RealName1', dateof(now()), 'user1');
+       ... INSERT INTO user(email, name, reg_timestamp, username) VALUES ('user2@ua.pt', 'RealName2', dateof(now()), 'user2');
+       ... INSERT INTO user(email, name, reg_timestamp, username) VALUES ('user3@ua.pt', 'RealName3', dateof(now()), 'user3');
+       ... INSERT INTO user(email, name, reg_timestamp, username) VALUES ('user4@ua.pt', 'RealName4', dateof(now()), 'user4');
+       ... INSERT INTO user(email, name, reg_timestamp, username) VALUES ('user5@ua.pt', 'RealName5', dateof(now()), 'user5');
+       ... INSERT INTO user(email, name, reg_timestamp, username) VALUES ('user6@ua.pt', 'RealName6', dateof(now()), 'user6');
+       ... INSERT INTO user(email, name, reg_timestamp, username) VALUES ('user7@ua.pt', 'RealName7', dateof(now()), 'user7');
+       ... INSERT INTO user(email, name, reg_timestamp, username) VALUES ('user8@ua.pt', 'RealName8', dateof(now()), 'user8');
+       ... INSERT INTO user(email, name, reg_timestamp, username) VALUES ('user9@ua.pt', 'RealName9', dateof(now()), 'user9');
+       ... INSERT INTO user(email, name, reg_timestamp, username) VALUES ('user10@ua.pt', 'RealName10', dateof(now()), 'user10');
+       ... INSERT INTO user(email, name, reg_timestamp, username) VALUES ('user11@ua.pt', 'RealName11', dateof(now()), 'user11');
+       ... INSERT INTO user(email, name, reg_timestamp, username) VALUES ('user12@ua.pt', 'RealName12', dateof(now()), 'user12');
+       ... APPLY BATCH;
+
+VIDEO
+cqlsh:ex2> BEGIN BATCH
+       ... INSERT INTO video (id, author, upload_timestamp, description, tags, title) VALUES (1, 'user1@ua.pt', dateof(now()), 'An awesome performance', ['Eurovision','Czech','Republic'], 'Hope Never Dies'); 
+       ... INSERT INTO video (id, author, upload_timestamp, description, tags, title) VALUES (2, 'user2@ua.pt', dateof(now()), 'Ho Ho Ho', ['2020','XMAS','Mariah Carey'], 'Merry Xmas');                        
+       ... INSERT INTO video (id, author, upload_timestamp, description, tags, title) VALUES (3, 'user3@ua.pt', dateof(now()), 'My acanaconda dont', ['Nicki','Minaj','Anaconda'], 'Anaconda');                                                 
+       ... INSERT INTO video (id, author, upload_timestamp, description, tags, title) VALUES (4, 'user4@ua.pt', dateof(now()), 'Some random words 4', ['4','nice','tags'], 'Love Me 4');                                       
+       ... INSERT INTO video (id, author, upload_timestamp, description, tags, title) VALUES (5, 'user5@ua.pt', dateof(now()), 'Some random words 5', ['5','nice','tags'], 'Love Me 5');    
+       ... INSERT INTO video (id, author, upload_timestamp, description, tags, title) VALUES (6, 'user6@ua.pt', dateof(now()), 'Some random words 6', ['6','nice','tags'], 'Love Me 6');    
+       ... INSERT INTO video (id, author, upload_timestamp, description, tags, title) VALUES (7, 'user7@ua.pt', dateof(now()), 'Some random words 7', ['7','nice','tags'], 'Love Me 7');    
+       ... INSERT INTO video (id, author, upload_timestamp, description, tags, title) VALUES (8, 'user8@ua.pt', dateof(now()), 'Some random words 8', ['8','nice','tags'], 'Love Me 8');    
+       ... INSERT INTO video (id, author, upload_timestamp, description, tags, title) VALUES (9, 'user9@ua.pt', dateof(now()), 'Some random words 9', ['9','nice','tags'], 'Love Me 9');    
+       ... INSERT INTO video (id, author, upload_timestamp, description, tags, title) VALUES (10, 'user10@ua.pt', dateof(now()), 'Some random words 10', ['10','nice','tags'], 'Love Me 10');    
+       ... INSERT INTO video (id, author, upload_timestamp, description, tags, title) VALUES (11, 'user11@ua.pt', dateof(now()), 'Some random words 11', ['11','nice','tags'], 'Love Me 11');    
+       ... INSERT INTO video (id, author, upload_timestamp, description, tags, title) VALUES (12, 'user12@ua.pt', dateof(now()), 'Some random words 12', ['12','nice','tags'], 'Love Me 12');    
+       ... APPLY BATCH;
+       
+VIDEOS_AUTHOR
+cqlsh:ex2> BEGIN BATCH
+       ... INSERT INTO videos_author(user_email, upload_timestamp, video_id, author) VALUES ('user1@ua.pt','2020-12-26 12:14:43.802000+0000', 1, 'user1');
+       ... INSERT INTO videos_author(user_email, upload_timestamp, video_id, author) VALUES ('user2@ua.pt','2020-12-26 12:14:43.803000+0000', 2, 'user2');
+       ... INSERT INTO videos_author(user_email, upload_timestamp, video_id, author) VALUES ('user3@ua.pt','2020-12-26 12:14:43.803000+0000', 3, 'user3');
+       ... INSERT INTO videos_author(user_email, upload_timestamp, video_id, author) VALUES ('user4@ua.pt','2020-12-26 12:14:43.803000+0000', 4, 'user4');
+       ... INSERT INTO videos_author(user_email, upload_timestamp, video_id, author) VALUES ('user5@ua.pt','2020-12-26 12:14:43.803000+0000', 5, 'user5');
+       ... INSERT INTO videos_author(user_email, upload_timestamp, video_id, author) VALUES ('user6@ua.pt','2020-12-26 12:14:43.803000+0000', 6, 'user6');
+       ... INSERT INTO videos_author(user_email, upload_timestamp, video_id, author) VALUES ('user7@ua.pt','2020-12-26 12:14:43.803000+0000', 7, 'user7');
+       ... INSERT INTO videos_author(user_email, upload_timestamp, video_id, author) VALUES ('user8@ua.pt','2020-12-26 12:14:43.803000+0000', 8, 'user8');
+       ... INSERT INTO videos_author(user_email, upload_timestamp, video_id, author) VALUES ('user9@ua.pt','2020-12-26 12:14:43.803000+0000', 9, 'user9');
+       ... INSERT INTO videos_author(user_email, upload_timestamp, video_id, author) VALUES ('user10@ua.pt','2020-12-26 12:14:43.803000+0000', 10, 'user10');
+       ... INSERT INTO videos_author(user_email, upload_timestamp, video_id, author) VALUES ('user11@ua.pt','2020-12-26 12:14:43.804000+0000', 11, 'user11');
+       ... INSERT INTO videos_author(user_email, upload_timestamp, video_id, author) VALUES ('user12@ua.pt','2020-12-26 12:14:43.804000+0000', 12, 'user12');
+       ... APPLY BATCH
+       ... ;
+       
+COMMENTS_VIDEO
+cqlsh:ex2> 
+       INSERT INTO comments_video(video_id, upload_timestamp, comment, user_email, user_username) VALUES (1, dateof(now()), 'Comment 1', 'user1@ua.pt', 'user1');
+       INSERT INTO comments_video(video_id, upload_timestamp, comment, user_email, user_username) VALUES (2, dateof(now()), 'Comment 2', 'user2@ua.pt', 'user2');
+       INSERT INTO comments_video(video_id, upload_timestamp, comment, user_email, user_username) VALUES (2, dateof(now()), 'Comment 3', 'user4@ua.pt', 'user4');
+       INSERT INTO comments_video(video_id, upload_timestamp, comment, user_email, user_username) VALUES (5, dateof(now()), 'Comment 4', 'user1@ua.pt', 'user1');
+       INSERT INTO comments_video(video_id, upload_timestamp, comment, user_email, user_username) VALUES (6, dateof(now()), 'Comment 5', 'user7@ua.pt', 'user7');
+       INSERT INTO comments_video(video_id, upload_timestamp, comment, user_email, user_username) VALUES (3, dateof(now()), 'Comment 6', 'user2@ua.pt', 'user2');
+       INSERT INTO comments_video(video_id, upload_timestamp, comment, user_email, user_username) VALUES (12, dateof(now()), 'Comment 7', 'user10@ua.pt', 'user10');
+       INSERT INTO comments_video(video_id, upload_timestamp, comment, user_email, user_username) VALUES (10, dateof(now()), 'Comment 8', 'user12@ua.pt', 'user12');
+       INSERT INTO comments_video(video_id, upload_timestamp, comment, user_email, user_username) VALUES (2, dateof(now()), 'Comment 9', 'user12@ua.pt', 'user12');
+       INSERT INTO comments_video(video_id, upload_timestamp, comment, user_email, user_username) VALUES (4, dateof(now()), 'Comment 10', 'user8@ua.pt', 'user8');
+       INSERT INTO comments_video(video_id, upload_timestamp, comment, user_email, user_username) VALUES (4, dateof(now()), 'Comment 11', 'user9@ua.pt', 'user9');
+       INSERT INTO comments_video(video_id, upload_timestamp, comment, user_email, user_username) VALUES (12, dateof(now()), 'Comment 12', 'user12@ua.pt', 'user12');
+
+
+COMMENTS_USERNAME
+cqlsh:ex2> BEGIN BATCH
+       ... INSERT INTO comments_username (user_username, upload_timestamp, comment, user_email,video_id) VALUES ('user1', dateof(now()), 'Goodbye', 'user1@ua.pt', 11);           
+       ... INSERT INTO comments_username (user_username, upload_timestamp, comment, user_email,video_id) VALUES ('user2', dateof(now()), 'Bye', 'user2@ua.pt', 12);         
+       ... INSERT INTO comments_username (user_username, upload_timestamp, comment, user_email,video_id) VALUES ('user3', dateof(now()), 'Cya', 'user3@ua.pt', 10);     
+       ... INSERT INTO comments_username (user_username, upload_timestamp, comment, user_email,video_id) VALUES ('user4', dateof(now()), 'Cya', 'user4@ua.pt', 10);    
+       ... INSERT INTO comments_username (user_username, upload_timestamp, comment, user_email,video_id) VALUES ('user5', dateof(now()), 'Cya', 'user5@ua.pt', 10);  
+       ... INSERT INTO comments_username (user_username, upload_timestamp, comment, user_email,video_id) VALUES ('user6', dateof(now()), 'Cya', 'user6@ua.pt', 8);   
+       ... INSERT INTO comments_username (user_username, upload_timestamp, comment, user_email,video_id) VALUES ('user7', dateof(now()), 'Cya', 'user7@ua.pt', 8);  
+       ... INSERT INTO comments_username (user_username, upload_timestamp, comment, user_email,video_id) VALUES ('user9', dateof(now()), 'Cya', 'user9@ua.pt', 7);  
+       ... INSERT INTO comments_username (user_username, upload_timestamp, comment, user_email,video_id) VALUES ('user7', dateof(now()), 'Cya', 'user7@ua.pt', 3);
+       ... INSERT INTO comments_username (user_username, upload_timestamp, comment, user_email,video_id) VALUES ('user3', dateof(now()), 'Cya', 'user3@ua.pt', 5);
+       ... INSERT INTO comments_username (user_username, upload_timestamp, comment, user_email,video_id) VALUES ('user2', dateof(now()), 'Cya', 'user2@ua.pt', 6);
+       ... INSERT INTO comments_username (user_username, upload_timestamp, comment, user_email,video_id) VALUES ('user3', dateof(now()), 'Cya', 'user3@ua.pt', 4);
+       ... APPLY BATCH;
+
+
+FOLLOWER
+cqlsh:ex2> BEGIN BATCH
+       ... INSERT INTO follower (video_id, user_emaIl) VALUES(1,'user1@ua.pt');  
+       ... INSERT INTO follower (video_id, user_emaIl) VALUES(1,'user2@ua.pt');
+       ... INSERT INTO follower (video_id, user_emaIl) VALUES(1,'user3@ua.pt');
+       ... INSERT INTO follower (video_id, user_emaIl) VALUES(2,'user1@ua.pt');
+       ... INSERT INTO follower (video_id, user_emaIl) VALUES(2,'user4@ua.pt');
+       ... INSERT INTO follower (video_id, user_emaIl) VALUES(2,'user6@ua.pt');
+       ... INSERT INTO follower (video_id, user_emaIl) VALUES(3,'user8@ua.pt');
+       ... INSERT INTO follower (video_id, user_emaIl) VALUES(3,'user7@ua.pt');
+       ... INSERT INTO follower (video_id, user_emaIl) VALUES(3,'user9@ua.pt');
+       ... INSERT INTO follower (video_id, user_emaIl) VALUES(11,'user10@ua.pt');
+       ... INSERT INTO follower (video_id, user_emaIl) VALUES(12,'user10@ua.pt');
+       ... INSERT INTO follower (video_id, user_emaIl) VALUES(8,'user12@ua.pt');
+       ... APPLY BATCH;
+
+
+EVENTS
+cqlsh:ex2> BEGIN BATCH
+       ... INSERT INTO events (user_email, video_id, real_timestamp, video_timestamp, action) VALUES ('user1@ua.pt', 1, dateof(now()), 0, 'play');          
+       ... INSERT INTO events (user_email, video_id, real_timestamp, video_timestamp, action) VALUES ('user2@ua.pt', 1, dateof(now()), 55, 'pause'); 
+       ... INSERT INTO events (user_email, video_id, real_timestamp, video_timestamp, action) VALUES ('user2@ua.pt', 3, dateof(now()), 74, 'stop');    
+       ... INSERT INTO events (user_email, video_id, real_timestamp, video_timestamp, action) VALUES ('user4@ua.pt', 6, dateof(now()), 86, 'play');    
+       ... INSERT INTO events (user_email, video_id, real_timestamp, video_timestamp, action) VALUES ('user4@ua.pt', 3, dateof(now()), 20, 'stop');   
+       ... INSERT INTO events (user_email, video_id, real_timestamp, video_timestamp, action) VALUES ('user4@ua.pt', 7, dateof(now()), 14, 'play');    
+       ... INSERT INTO events (user_email, video_id, real_timestamp, video_timestamp, action) VALUES ('user10@ua.pt', 7, dateof(now()), 8, 'pause');   
+       ... INSERT INTO events (user_email, video_id, real_timestamp, video_timestamp, action) VALUES ('user12@ua.pt', 10, dateof(now()), 8, 'pause');  
+       ... INSERT INTO events (user_email, video_id, real_timestamp, video_timestamp, action) VALUES ('user12@ua.pt', 12, dateof(now()), 12, 'play');    
+       ... INSERT INTO events (user_email, video_id, real_timestamp, video_timestamp, action) VALUES ('user12@ua.pt', 12, dateof(now()), 104, 'stop');  
+       ... INSERT INTO events (user_email, video_id, real_timestamp, video_timestamp, action) VALUES ('user11@ua.pt', 2, dateof(now()), 2, 'stop');
+       ... INSERT INTO events (user_email, video_id, real_timestamp, video_timestamp, action) VALUES ('user1@ua.pt', 2, dateof(now()), 3, 'stop');
+       ... APPLY BATCH;
+
+       
+RATING
+cqlsh:ex2> BEGIN BATCH
+       ... INSERT INTO rating (video_id, value, review_id) VALUES (1,3,1) ; 
+       ... INSERT INTO rating (video_id, value, review_id) VALUES (2,5,2) ;   
+       ... INSERT INTO rating (video_id, value, review_id) VALUES (1,4,3) ;   
+       ... INSERT INTO rating (video_id, value, review_id) VALUES (7,2,4) ;   
+       ... INSERT INTO rating (video_id, value, review_id) VALUES (12,4,5) ;   
+       ... INSERT INTO rating (video_id, value, review_id) VALUES (8,3,6) ;    
+       ... INSERT INTO rating (video_id, value, review_id) VALUES (8,1,7) ;  
+       ... INSERT INTO rating (video_id, value, review_id) VALUES (10,1,8) ;
+       ... INSERT INTO rating (video_id, value, review_id) VALUES (11,3,9) ;
+       ... INSERT INTO rating (video_id, value, review_id) VALUES (12,4,10) ;
+       ... INSERT INTO rating (video_id, value, review_id) VALUES (4,5,11) ;
+       ... INSERT INTO rating (video_id, value, review_id) VALUES (5,5,12) ;
+       ... APPLY BATCH;
+
+JSON:
+SELECT JSON* from user; (idêntico para cada uma das tabelas)
+
+c)
+Pesquisas:
+
+cqlsh:ex2> SELECT * FROM videos_author WHERE user_email = 'user1@ua.pt';
+
+ user_email  | upload_timestamp                | video_id | author
+-------------+---------------------------------+----------+--------
+ user1@ua.pt | 2020-12-26 12:14:43.802000+0000 |        1 |  user1
+
+(1 rows)
+
+cqlsh:ex2> SELECT * FROM comments_username  WHERE user_username = 'user2';
+
+ user_username | upload_timestamp                | comment | user_email  | video_id
+---------------+---------------------------------+---------+-------------+----------
+         user2 | 2020-12-26 12:44:34.937000+0000 |     Cya | user2@ua.pt |        6
+         user2 | 2020-12-26 12:44:34.936000+0000 |     Bye | user2@ua.pt |       12
+
+(2 rows)
+
+
+cqlsh:ex2> SELECT * FROM comments_video  WHERE video_id = 2;
+
+ video_id | upload_timestamp                | comment   | user_email   | user_username
+----------+---------------------------------+-----------+--------------+---------------
+        2 | 2020-12-26 14:43:59.715000+0000 | Comment 9 | user12@ua.pt |        user12
+        2 | 2020-12-26 14:43:59.700000+0000 | Comment 3 |  user4@ua.pt |         user4
+        2 | 2020-12-26 14:43:59.698000+0000 | Comment 2 |  user2@ua.pt |         user2
+
+(3 rows)
+
+
+cqlsh:ex2> SELECT avg(value) as average, count(value) as numR FROM rating  WHERE video_id = 8;
+
+ average | numr
+---------+------
+       2 |    2
+
+(1 rows)
+
+
+d)
+
+
+
+
+
+
+
+
+
