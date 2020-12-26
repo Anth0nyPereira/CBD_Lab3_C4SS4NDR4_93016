@@ -211,6 +211,111 @@ cqlsh:ex2> SELECT avg(value) as average, count(value) as numR FROM rating  WHERE
 
 d)
 
+1.
+cqlsh:ex2> SELECT * FROM comments_video  WHERE video_id = 2 LIMIT 3;
+
+ video_id | upload_timestamp                | comment   | user_email   | user_username
+----------+---------------------------------+-----------+--------------+---------------
+        2 | 2020-12-26 14:43:59.715000+0000 | Comment 9 | user12@ua.pt |        user12
+        2 | 2020-12-26 14:43:59.700000+0000 | Comment 3 |  user4@ua.pt |         user4
+        2 | 2020-12-26 14:43:59.698000+0000 | Comment 2 |  user2@ua.pt |         user2
+
+(3 rows)
+
+
+2.
+cqlsh:ex2> SELECT tags FROM video WHERE id = 3;
+
+ tags
+--------------------------------
+ ['Nicki', 'Minaj', 'Anaconda']
+
+(1 rows)
+
+
+3.
+Como não fazia ideia que seria necessária uma tag 'Aveiro', vou fazer para uma tag 'Eurovision':
+cqlsh:ex2> SELECT * FROM video WHERE tags CONTAINS 'Eurovision' ALLOW FILTERING;
+
+ id | upload_timestamp                | author      | description            | tags                                | title
+----+---------------------------------+-------------+------------------------+-------------------------------------+-----------------
+  1 | 2020-12-26 12:14:43.802000+0000 | user1@ua.pt | An awesome performance | ['Eurovision', 'Czech', 'Republic'] | Hope Never Dies
+
+(1 rows)
+
+
+4.
+cqlsh:ex2> SELECT * FROM events  WHERE user_email = 'user4@ua.pt' AND video_id = 7 LIMIT 5 ALLOW FILTERING ;
+
+ user_email  | video_id | real_timestamp                  | video_timestamp | action
+-------------+----------+---------------------------------+-----------------+--------
+ user4@ua.pt |        7 | 2020-12-26 12:53:53.096000+0000 |              14 |   play
+
+(1 rows)
+
+5.
+cqlsh:ex2> SELECT * FROM videos_author  WHERE user_email = 'user1@ua.pt' AND upload_timestamp < dateof(now()) ;
+
+ user_email  | upload_timestamp                | video_id | author
+-------------+---------------------------------+----------+--------
+ user1@ua.pt | 2020-12-26 12:14:43.802000+0000 |        1 |  user1
+
+(1 rows)
+
+
+6.
+Não dá, porque cassandra não permite global querying
+
+7.
+cqlsh:ex2> SELECT * from follower  WHERE video_id = 2;
+
+ video_id | user_email
+----------+-------------
+        2 | user1@ua.pt
+        2 | user4@ua.pt
+        2 | user6@ua.pt
+
+(3 rows)
+
+
+8.
+Não entendi, faltará uma tabela?
+cqlsh:ex2> SELECT * FROM comments_username  WHERE user_email = 'user3@ua.pt' AND video_id = 10 ALLOW FILTERING ;
+
+ user_username | upload_timestamp                | comment | user_email  | video_id
+---------------+---------------------------------+---------+-------------+----------
+         user3 | 2020-12-26 12:44:34.936000+0000 |     Cya | user3@ua.pt |       10
+
+(1 rows)
+
+
+
+9.
+Não dá, porque cassandra não permite global querying
+
+10.
+cqlsh:ex2> SELECT * FROM video WHERE id in (9,10,11);
+
+ id | upload_timestamp                | author       | description          | tags                   | title
+----+---------------------------------+--------------+----------------------+------------------------+------------
+  9 | 2020-12-26 12:14:43.803000+0000 |  user9@ua.pt |  Some random words 9 |  ['9', 'nice', 'tags'] |  Love Me 9
+ 10 | 2020-12-26 12:14:43.803000+0000 | user10@ua.pt | Some random words 10 | ['10', 'nice', 'tags'] | Love Me 10
+ 11 | 2020-12-26 12:14:43.804000+0000 | user11@ua.pt | Some random words 11 | ['11', 'nice', 'tags'] | Love Me 11
+
+(3 rows)
+
+
+11.
+Não percebi muito bem esta
+cqlsh:ex2> SELECT tags, COUNT(id) as count FROM video;
+
+ tags                  | count
+-----------------------+-------
+ ['5', 'nice', 'tags'] |    12
+
+(1 rows)
+
+
 
 
 
