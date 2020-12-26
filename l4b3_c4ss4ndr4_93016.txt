@@ -45,9 +45,121 @@ cqlsh:test> ALTER KEYSPACE test  WITH replication = {'class':'NetworkTopologyStr
 -> interessante, CASSANDRA não é case-sensitive, nem no nome dos keyspaces
 
 cqlsh> DROP KEYSPACE tutorial;
--> eliminar um keyspace
+-> eliminar um keyspace, se depois fizeres o comando DESCRIBE keyspaces já não vai aparecer o "tutorial"
 
 
+cqlsh> USE tutorialspoint;
+cqlsh:tutorialspoint>; CREATE TABLE emp( -> criação de uma tabela, é obrigatório definir pelo menos uma chave-primária, tutorialspoint é um KEYSPACE
+   emp_id int PRIMARY KEY,
+   emp_name text,
+   emp_city text,
+   emp_sal varint,
+   emp_phone varint
+   );
+
+cqlsh:tutorialspoint> select * from emp; -> retorna o schema resultante da tabela criada anteriormente
+
+ALTER TABLE -> alterar algo/alguma parte da tabela
+
+cqlsh:tutorialspoint> ALTER TABLE emp
+   ... ADD emp_email text; -> acrescentar uma coluna à tabela, i.e., um novo atributo
+   
+Ao fazeres o select da tabela -> cqlsh:tutorialspoint> select * from emp; -> agora vai aparecer um atributo a mais
+
+cqlsh:tutorialspoint> ALTER TABLE emp DROP emp_email; -> elimina um atributo/coluna da tabela emp_city
+
+cqlsh:tutorialspoint> DROP TABLE emp; -> elimina a tabela emp
+Se executares o comando DESCRIBE COLUMNFAMILIES, emp deixará de existir no seu output
+
+cqlsh:tp> TRUNCATE student; -> remove todos os dados que a tabela student possa conter; ação irreversível
+
+cqlsh:tutorialspoint> CREATE INDEX name ON emp1 (emp_name); -> exemplo de criação de um index para uma dada coluna (emp_name) para a tabela emp1
+
+cqlsh:tp> drop index name; -> eliminar o index criado anteriormente
+
+UTILIZAÇÃO DE BATCH - já se tinha falado disto em Bases de Dados mas, e para relembrar um bocadinho, tudo o que estiver dentro de uma batch é executado e permite colocar várias expressões/declarações que envolvam a alteração de uma tabela, como
+algum INSERT, UPDATE ou DELETE
+
+cqlsh:tutorialspoint> BEGIN BATCH
+... INSERT INTO emp (emp_id, emp_city, emp_name, emp_phone, emp_sal) values(  4,'Pune','rajeev',9848022331, 30000);
+... UPDATE emp SET emp_sal = 50000 WHERE emp_id =3;
+... DELETE emp_city FROM emp WHERE emp_id = 2;
+... APPLY BATCH; -> exemplo de aplicação de uma batch que insere uma nova linha, altera um atributo e elimina outro
+
+O que acontece se eliminarmos um atributo de uma linha?? Este passa a null, verificar em cqlsh:tutorialspoint> select * from emp;
+
+INSERT, UPDATE, READ & DELETE DATA
+
+cqlsh:tutorialspoint> INSERT INTO emp (emp_id, emp_name, emp_city,
+   emp_phone, emp_sal) VALUES(1,'ram', 'Hyderabad', 9848022338, 50000);
+
+cqlsh:tutorialspoint> INSERT INTO emp (emp_id, emp_name, emp_city,
+   emp_phone, emp_sal) VALUES(2,'robin', 'Hyderabad', 9848022339, 40000);
+
+cqlsh:tutorialspoint> INSERT INTO emp (emp_id, emp_name, emp_city,
+   emp_phone, emp_sal) VALUES(3,'rahman', 'Chennai', 9848022330, 45000);
+
+-> preenche a tabela com 3 colunas com os dados apresentados
+
+cqlsh:tutorialspoint> UPDATE emp SET emp_city='Delhi',emp_sal=50000
+   WHERE emp_id=2;
+   
+-> dá update a uma coluna em específico (especificada pela condição WHERE e o seu id)
+
+
+cqlsh:tutorialspoint> SELECT emp_name, emp_sal from emp; -> apresenta os dados relativos a 2 atributos da tabela emp
+
+cqlsh:tutorialspoint> DELETE emp_sal FROM emp WHERE emp_id=3; -> apaga o atributo especificado numa dada linha
+
+cqlsh:tutorialspoint> DELETE FROM emp WHERE emp_id=3; -> apaga uma linha inteira
+
+varint é para inteiros, tal como int, mas varint é mais preciso
+
+Em Cassandra existem listas (list), mapas (map) e sets (set)
+
+Exemplo de criação de uma tabela em que uma das colunas é uma lista: cqlsh:tutorialspoint> CREATE TABLE data(name text PRIMARY KEY, email list<text>);
+
+Inserção: cqlsh:tutorialspoint> INSERT INTO data(name, email) VALUES ('ramu',
+                ['abc@gmail.com','cba@yahoo.com'])
+
+Update/Inserção de um novo elemento: cqlsh:tutorialspoint> UPDATE data
+... SET email = email +['xyz@tutorialspoint.com']
+... where name = 'ramu';
+
+
+Exemplo de criação de uma tabela em que uma das colunas é um set: cqlsh:tutorialspoint> CREATE TABLE data2 (name text PRIMARY KEY, phone set<varint>);
+
+Inserção: cqlsh:tutorialspoint> INSERT INTO data2(name, phone)VALUES ('rahman',    {9848022338,9848022339});
+
+Update/Inserção de um novo elemento: cqlsh:tutorialspoint> UPDATE data2
+   ... SET phone = phone + {9848022330}
+   ... where name = 'rahman';
+   
+
+Exemplo de criação de uma tabela em que uma das colunas é um mapa: cqlsh:tutorialspoint> CREATE TABLE data3 (name text PRIMARY KEY, address map<timestamp, text>);
+
+Inserção: cqlsh:tutorialspoint> INSERT INTO data3 (name, address) VALUES ('robin', {'home' : 'hyderabad' , 'office' : 'Delhi' } );
+
+Update: cqlsh:tutorialspoint> UPDATE data3
+   ... SET address = address+{'office':'mumbai'}
+   ... WHERE name = 'robin';
+   
+ 
+ DATA TYPES
+ 
+cqlsh:tutorialspoint> CREATE TYPE card_details ( -> exemplo de criação de um user-defined data type
+   ... num int,
+   ... pin int,
+   ... name text,
+   ... cvv int,
+   ... phone set<int>
+... );
+   
+cqlsh:tutorialspoint> ALTER TYPE card_details ADD email text; -> adicionar um atributo
+
+cqlsh:tutorialspoint> ALTER TYPE card_details RENAME email TO mail; -> renomear um atributo
+
+cqlsh:tutorialspoint> drop type card; -> apagar o data type, se fizeres cqlsh:tutorialspoint> describe types vai deixar de aparecer
 
 
 BIBLIOGRAFIA
@@ -57,6 +169,7 @@ https://www.quora.com/What-is-the-meaning-of-Rack-Awareness-in-Hadoop
 https://www.oreilly.com/library/view/learning-apache-cassandra/9781787127296/1b85246c-2713-44ae-a9c2-7971f4915555.xhtml
 https://www.tutorialspoint.com/cassandra/cassandra_create_keyspace.htm
 https://docs.datastax.com/en/cassandra-oss/3.x/cassandra/architecture/archDataDistributeReplication.html
+https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/cqlTruncate.html
 
 
 
